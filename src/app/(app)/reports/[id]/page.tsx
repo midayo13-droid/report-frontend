@@ -148,8 +148,8 @@ export default function ReportDetail() {
   function renderNotes() {
     return (
       <section className="card span2">
-        <h2 className="t1">비고</h2>
-        <p className="cap mb12">숫자가 왜 그렇게 나왔는지 적어 두는 칸이에요.</p>
+        <h2 className="t1">확인 메모</h2>
+        <p className="cap mb12">어제와 달라진 매출, 취소율, 재고 같은 지표의 이유를 적어 두는 곳이에요. 쓴 사람과 시각이 함께 남고, AI가 원인 후보를 찾아 줄 수도 있어요.</p>
         {r.notes.length === 0 ? <div className="cap">남겨진 메모가 없어요.</div> : null}
         {r.notes.map((n: any) => (
           <div key={n.id} className="lr" style={{ alignItems: "flex-start" }}>
@@ -172,8 +172,8 @@ export default function ReportDetail() {
         {canEdit ? (
           <div className="stack mt16">
             <div className="row-wrap">
-              <select className="select" style={{ width: "auto", minHeight: 40 }} value={noteMetric} onChange={(e) => setNoteMetric(e.target.value)} aria-label="어느 숫자에 대한 이유인가요">
-                {NOTE_METRICS.map((m) => <option key={m} value={m}>{metricName(m)}에 대한 이유</option>)}
+              <select className="select" style={{ width: "auto", minHeight: 40 }} value={noteMetric} onChange={(e) => setNoteMetric(e.target.value)} aria-label="어떤 지표에 대한 메모인가요">
+                {NOTE_METRICS.map((m) => <option key={m} value={m}>{m === "general" ? "지표: 전체" : `지표: ${metricName(m)}`}</option>)}
               </select>
               <Button size="m" disabled={busy === "cause"} onClick={() => act("cause", async () => setAiNote(await api("/ai/cause-candidates", { method: "POST", body: { reportId: r.id, metricKey: noteMetric } })))}>
                 <Icon name="spark" size={16} /> {busy === "cause" ? "찾는 중" : "AI 원인 후보 보기"}
@@ -198,7 +198,7 @@ export default function ReportDetail() {
                 </div>
               </div>
             ) : null}
-            <textarea className="textarea" placeholder="이 숫자가 왜 이렇게 나왔는지 적어 주세요. (예: 인스타 이벤트로 주문이 늘었어요)" value={noteText} onChange={(e) => setNoteText(e.target.value)} maxLength={300} />
+            <textarea className="textarea" placeholder="선택한 지표가 왜 달라졌는지 적어 주세요. (예: 인스타 이벤트로 주문이 늘었어요)" value={noteText} onChange={(e) => setNoteText(e.target.value)} maxLength={300} />
             <div className="row" style={{ justifyContent: "flex-end" }}>
               <Button variant="secondary" disabled={noteText.trim().length < 2 || busy === "note"} onClick={() => act("note", async () => {
                 await api(`/reports/${r.id}/notes`, { method: "POST", body: { note: noteText, metricKey: noteMetric, source: usedAiId ? "ai_draft" : "manual" } });
