@@ -29,7 +29,7 @@ export default function ReportDetail() {
   const [sumEdit, setSumEdit] = useState(false);
   const [sumText, setSumText] = useState("");
   const [sumAi, setSumAi] = useState<any>(null);
-  // 사유 메모
+  // 확인 메모
   const [noteText, setNoteText] = useState("");
   const [noteMetric, setNoteMetric] = useState("general");
   const [aiNote, setAiNote] = useState<any>(null);
@@ -193,7 +193,7 @@ export default function ReportDetail() {
                   </div>
                 ))}
                 <div className="row-wrap">
-                  <Button size="s" variant="secondary" onClick={() => { setNoteText(aiNote.noteDraft); setUsedAiId(aiNote.id); }}>사유 초안을 아래에 넣기</Button>
+                  <Button size="s" variant="secondary" onClick={() => { setNoteText(aiNote.noteDraft); setUsedAiId(aiNote.id); }}>확인 메모 초안을 아래에 넣기</Button>
                   <span className="cap-s">{aiNote.source === "gpt" ? "GPT가 만든 초안이에요." : "미리 정해 둔 규칙으로 만든 초안이에요."} 고쳐서 저장해 주세요.</span>
                 </div>
               </div>
@@ -429,7 +429,7 @@ export default function ReportDetail() {
       >
         <p className="b2" style={{ color: "var(--g700)", margin: 0 }}>승인하면 대표와 팀장이 볼 수 있어요. 공개된 보고서는 고칠 수 없어요.</p>
         {snap.issues?.length ? <div className="warnbox mt12">수집 확인이 필요한 곳이 있어요: {snap.issues.map((i: any) => i.channel).join(", ")}</div> : null}
-        {r.notes.length === 0 && snap.stockSummary.danger > 0 ? <div className="note mt12 cap">재고 위험 상품이 있는데 사유 메모는 아직 없어요.</div> : null}
+        {r.notes.length === 0 && snap.stockSummary.danger > 0 ? <div className="note mt12 cap">재고 위험 상품이 있는데 확인 메모는 아직 없어요.</div> : null}
       </Dialog>
 
       <Dialog
