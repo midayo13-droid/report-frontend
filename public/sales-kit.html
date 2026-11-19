@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모아뷰티 리포트 - 일일 보고서 자동화</title>
+<meta name="description" content="판매처·광고·재고를 자동으로 모아 아침마다 보고서를 만들어 둬요. 확인하고 승인만 하세요. 가입 없이 바로 체험해 보세요.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --blue:#3182f6; --blue-d:#1b64da; --blue50:#e8f3ff;
+  --navy:#0f1b33; --navy2:#b8c4dc; --navy3:#8fa0c0;
+  --ink:#191f28; --ink2:#4e5968; --ink3:#6b7684; --line:#e5e8eb; --bg:#f7f8fa; --white:#fff;
+  --amber:#b45f00; --amber50:#fff1df; --red:#d1303d; --red50:#ffecee; --green:#1f7a6b; --green50:#e6f4f1;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--white);color:var(--ink);font-family:Pretendard,'Pretendard Variable','Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:16px;line-height:1.7;word-break:keep-all;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:6px}
+
+.bar{background:var(--navy);color:#fff;font-size:14px}
+.bar .wrap{display:flex;gap:10px;align-items:center;padding-top:9px;padding-bottom:9px;flex-wrap:wrap}
+.bar .pill{background:var(--blue);border-radius:99px;padding:1px 10px;font-size:12px;font-weight:700}
+.bar a{margin-left:auto;color:#fff;font-weight:600}
+
+header.top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:28px;height:60px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;text-decoration:none;white-space:nowrap}
+.brand i{width:22px;height:22px;border-radius:7px;background:var(--blue);display:inline-block}
+nav.links{margin-left:auto;display:flex;gap:26px;font-size:15px;color:var(--ink2)}
+nav.links a{text-decoration:none}
+nav.links a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 24px;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none;border:1.5px solid transparent;cursor:pointer;transition:background .15s,border-color .15s}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-d)}
+.btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:#b0b8c1}
+.btn.sm{height:38px;padding:0 16px;font-size:14px;border-radius:10px}
+header.top .btn{margin-left:4px}
+
+.hero{padding:64px 0 56px}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+.eyebrow{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.01em}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.22;letter-spacing:-.025em;margin:12px 0 0;font-weight:800}
+.hero .answer{font-size:clamp(19px,2.6vw,24px);line-height:1.5;font-weight:600;color:var(--ink);margin:20px 0 0;letter-spacing:-.01em}
+.hero .answer b{color:var(--blue);font-weight:800}
+.hero .desc{color:var(--ink2);font-size:17px;margin:14px 0 0;max-width:34em}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.micro{font-size:13px;color:var(--ink3);margin-top:12px}
+.assume{font-size:13px;color:var(--ink3);margin-top:6px}
+
+.stage{background:var(--blue50);border-radius:28px;padding:32px 0 26px;display:flex;flex-direction:column;align-items:center}
+.phone{width:248px;background:#fff;border:1px solid #cfd4da;border-radius:28px;padding:16px 14px;box-shadow:0 24px 48px -24px rgba(15,27,51,.35)}
+.phone .row{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.chip{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
+.chip.w{background:var(--amber50);color:var(--amber)}
+.chip.r{background:var(--red50);color:var(--red)}
+.chip.a{background:#fff1df;color:var(--amber)}
+.phone small{color:var(--ink3);font-size:11px}
+.phone .amt{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.phone .up{font-size:12px;font-weight:700;color:var(--blue);margin:2px 0 12px}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.kpi div{background:var(--bg);border-radius:9px;padding:8px 10px}
+.kpi small{display:block}
+.kpi b{font-size:15px}
+.phone .go{background:var(--blue);color:#fff;border-radius:11px;text-align:center;font-weight:700;font-size:13px;padding:11px 0;margin-top:12px}
+.stage figcaption{font-size:12px;color:var(--ink3);margin-top:14px}
+
+.nums{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
+.nums .wrap{display:grid;grid-template-columns:repeat(3,1fr)}
+.nums .n{padding:26px 24px;border-left:1px solid var(--line)}
+.nums .n:first-child{border-left:0;padding-left:0}
+.nums b{display:block;font-size:30px;line-height:1.2;letter-spacing:-.02em;font-weight:800}
+.nums span{font-size:14px;color:var(--ink3)}
+
+section.blk{padding:72px 0 8px}
+.kicker{font-size:14px;font-weight:700;color:var(--blue)}
+h2{font-size:clamp(24px,3.4vw,34px);line-height:1.3;letter-spacing:-.02em;margin:6px 0 0;font-weight:800}
+.lead{color:var(--ink2);margin:10px 0 0;max-width:38em}
+
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:30px}
+.flow div{padding-right:6px}
+.flow .t{font-weight:800;font-size:15px}
+.flow .bar2{height:4px;border-radius:3px;background:var(--blue);margin:9px 0 10px}
+.flow .bar2.g{background:#d0d5db}
+.flow p{margin:0;color:var(--ink2);font-size:15px;line-height:1.6}
+
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:30px}
+.card{border:1px solid var(--line);border-radius:20px;padding:24px 26px}
+.card.hi{border:2px solid var(--blue);background:#fbfdff}
+.card .cap{font-size:13px;font-weight:700;color:var(--ink3);margin-bottom:10px}
+.card.hi .cap{color:var(--blue)}
+.card ul{margin:0;padding:0;list-style:none}
+.card li{padding:8px 0;border-top:1px solid var(--line);font-size:16px}
+.card li:first-child{border-top:0}
+
+.safe{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:30px}
+.safe .s{background:var(--bg);border-radius:18px;padding:20px 20px 22px}
+.safe b{display:block;font-size:16px;margin-bottom:6px}
+.safe p{margin:0;color:var(--ink2);font-size:14.5px;line-height:1.65}
+
+.cost{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:30px}
+.cost table{width:100%;border-collapse:collapse;font-size:15px}
+.cost td{padding:10px 0;border-top:1px solid var(--line)}
+.cost tr:first-child td{border-top:0}
+.cost td:last-child{text-align:right;color:var(--ink2);white-space:nowrap}
+.cost .tot td{font-weight:800;color:var(--ink)}
+.cost .note{font-size:13px;color:var(--ink3);margin-top:10px}
+
+.final{margin-top:80px;background:var(--navy);color:#fff}
+.final .wrap{padding-top:56px;padding-bottom:56px}
+.final h2{color:#fff}
+.final p{color:var(--navy2);max-width:36em;margin:12px 0 0}
+.roles{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 26px}
+.roles a{border:1px solid #4a5a7c;border-radius:99px;padding:6px 16px;font-size:14px;text-decoration:none;color:#fff}
+.roles a:hover{border-color:#fff}
+.final .micro{color:var(--navy3)}
+
+.contact{padding:44px 0 20px}
+.contact .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.contact b{display:block;font-size:15px;margin-bottom:4px}
+.contact p{margin:0;color:var(--ink2);font-size:15px}
+footer{padding:8px 0 48px;font-size:12.5px;color:var(--ink3)}
+
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr;gap:32px}
+  .flow{grid-template-columns:1fr 1fr}
+  .safe{grid-template-columns:1fr 1fr}
+  .cost{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .wrap{padding:0 18px}
+  nav.links{display:none}
+  header.top .wrap{gap:12px}
+  header.top .btn{margin-left:auto;width:auto;flex:none}
+  .bar a{margin-left:0}
+  .hero{padding:36px 0 36px}
+  .btn{width:100%}
+  .cta{flex-direction:column}
+  .nums .wrap{grid-template-columns:1fr}
+  .nums .n{border-left:0;border-top:1px solid var(--line);padding:18px 0}
+  .nums .n:first-child{border-top:0}
+  .cmp{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}
+  .safe{grid-template-columns:1fr}
+  .contact .grid{grid-template-columns:1fr}
+  section.blk{padding-top:52px}
+  .stage{border-radius:22px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="bar"><div class="wrap">
+  <span class="pill">체험</span>
+  <span>가입 없이 바로 써 볼 수 있어요. 가상 데이터로 승인까지 해 보세요.</span>
+  <a href="https://report-frontend-henna.vercel.app/demo-login" target="_blank" rel="noopener">체험하러 가기 →</a>
+</div></div>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="#top"><i aria-hidden="true"></i>모아뷰티 리포트</a>
+  <nav class="links" aria-label="페이지 안 이동">
+    <a href="#flow">작동 방식</a><a href="#safety">안전장치</a><a href="#cost">비용</a><a href="#contact">문의</a>
+  </nav>
+  <a class="btn primary sm" href="https://report-frontend-henna.vercel.app/demo-login" target="_blank" rel="noopener">체험하기</a>
+</div></header>
+
+<main id="top">
+<section class="hero"><div class="wrap">
+  <div>
+    <div class="eyebrow">쇼핑몰 운영팀을 위한 일일 보고서 자동화</div>
+    <h1>아직도 아침마다<br>엑셀을 합치고 계세요?</h1>
+    <p class="answer"><b>준비된 보고서</b>가 승인을 기다려요.<br>확인하고 버튼만 누르세요.</p>
+    <p class="desc">판매처 4곳, 광고 3곳, 재고를 프로그램이 자동으로 모아 보고서를 만들어 둬요. 담당자는 이상한 숫자만 보고, 이사님은 승인만 하면 돼요.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://report-frontend-henna.vercel.app/demo-login" target="_blank" rel="noopener">승인 버튼, 직접 눌러 보기</a>
+      <a class="btn ghost" href="sales-kit/guide.pdf" target="_blank" rel="noopener">자료 보기 (PDF)</a>
+    </div>
+    <p class="micro">가입 없음 · 가상 데이터 90일치 · 약 7분이면 승인까지 돌아봐요</p>
+    <p class="assume">5명 합계 하루 170분이 약 10분으로 줄어요(가정).</p>
+  </div>
+  <figure class="stage" style="margin:0">
+    <div class="phone" role="img" aria-label="승인 대기 중인 일일 보고서 화면 예시">
+      <div class="row"><span class="chip w">승인 대기</span><small>일일 보고서 · 11월 11일</small></div>
+      <small>어제 마감 매출</small>
+      <div class="amt">36,659,620원</div>
+      <div class="up">+2% 전일보다</div>
+      <div class="kpi">
+        <div><small>광고 효율</small><b>3.91배</b></div>
+        <div><small>주문</small><b>498건</b></div>
+      </div>
+      <div><span class="chip r">재고 위험 3</span> <span class="chip a">주의 3</span></div>
+      <div class="go">승인하고 공개하기</div>
+    </div>
+    <figcaption>시연 화면 예시 · 가상 데이터</figcaption>
+  </figure>
+</div></section>
+
+<div class="nums"><div class="wrap">
+  <div class="n"><b>170분 → 10분</b><span>하루 보고서 업무, 담당자 5명 합계 (가정)</span></div>
+  <div class="n"><b>7곳 + 재고</b><span>판매처 4곳, 광고 3곳을 자동으로 수집</span></div>
+  <div class="n"><b>73개 통과</b><span>개발 중 자동 점검 (권한, 승인, 계산, AI, PDF)</span></div>
+</div></div>
+
+<section class="blk" id="flow"><div class="wrap">
+  <div class="kicker">작동 방식</div>
+  <h2>사람이 하던 일을, 아침 한 시간 안에</h2>
+  <p class="lead">정해진 시각에 프로그램이 모으고 계산해서 보고서를 만들어요. 사람은 확인하고 승인해요.</p>
+  <div class="flow">
+    <div><div class="t">07:30</div><div class="bar2"></div><p>판매처·광고를 자동으로 수집해요. 실패하면 3번 다시 시도해요.</p></div>
+    <div><div class="t">09:10</div><div class="bar2"></div><p>보고서가 자동으로 만들어져 승인을 기다려요.</p></div>
+    <div><div class="t">확인</div><div class="bar2 g"></div><p>담당자가 이상한 숫자에 이유를 적어요. AI가 원인 후보를 찾아 줘요.</p></div>
+    <div><div class="t">승인</div><div class="bar2 g"></div><p>이사님이 승인하면 그때부터 대표와 팀장에게 보여요.</p></div>
+  </div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+  <div class="kicker">전과 후</div>
+  <h2>합치는 일은 프로그램에게, 판단은 사람에게</h2>
+  <div class="cmp">
+    <div class="card"><div class="cap">지금</div><ul>
+      <li>5명이 같은 숫자를 각자 모아요</li>
+      <li>엑셀 8개 이상을 손으로 합쳐요</li>
+      <li>양식이 바뀌면 처음부터 다시 만들어요</li>
+      <li>한 사람이 빠지면 멈춰요</li></ul></div>
+    <div class="card hi"><div class="cap">모아뷰티 리포트</div><ul>
+      <li>프로그램이 정해진 시각에 모아요</li>
+      <li>계산, 경고, 그래프까지 자동이에요</li>
+      <li>양식과 기준을 화면에서 바꿔요</li>
+      <li>AI는 제안만, 결정은 사람이 해요</li></ul></div>
+  </div>
+</div></section>
+
+<section class="blk" id="safety"><div class="wrap">
+  <div class="kicker">안전장치</div>
+  <h2>잘못된 보고서가 나가지 않게 막아 놨어요</h2>
+  <div class="safe">
+    <div class="s"><b>승인 후에만 공개</b><p>승인 전에는 대표와 팀장에게 보이지 않아요.</p></div>
+    <div class="s"><b>공개 후엔 수정 불가</b><p>고쳐야 하면 새로 만들어 다시 승인받아요.</p></div>
+    <div class="s"><b>기준은 다음 날부터</b><p>계산 기준을 바꿔도 당일에는 적용되지 않아요.</p></div>
+    <div class="s"><b>모두 이력에 남아요</b><p>누가 언제 무엇을 했는지 지워지지 않아요.</p></div>
+  </div>
+</div></section>
+
+<section class="blk" id="cost"><div class="wrap">
+  <div class="kicker">비용</div>
+  <h2>월 약 6만~11만 원으로 운영해요 <span style="font-size:.6em;font-weight:600;color:var(--ink3)">(가정)</span></h2>
+  <div class="cost">
+    <div class="card">
+      <table>
+        <tr><td>화면 호스팅 (Vercel)</td><td>약 3만 원</td></tr>
+        <tr><td>서버·DB (Render)</td><td>약 2만~3만 원</td></tr>
+        <tr><td>AI 기능</td><td>약 1만~3만 원</td></tr>
+        <tr class="tot"><td>합계</td><td>약 6만~11만 원</td></tr>
+      </table>
+      <p class="note">실제 요금은 도입 전에 확인이 필요해요. 구축비는 과제 자체 제작이라 따로 산정하지 않았어요.</p>
+    </div>
+    <div class="card">
+      <div class="cap" style="font-weight:700;color:var(--ink3);font-size:13px;margin-bottom:10px">시작은 이렇게</div>
+      <ul style="margin:0;padding:0;list-style:none">
+        <li style="padding:8px 0;border-top:0">판매처·광고 <b>1곳</b>부터 실제로 연결해요</li>
+        <li style="padding:8px 0;border-top:1px solid var(--line)">연결이 어려운 곳은 엑셀 올리기로 대신해요</li>
+        <li style="padding:8px 0;border-top:1px solid var(--line)">지금 체험 화면은 가상 수집기로 돌아가요</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section class="final"><div class="wrap">
+  <h2>말로 듣지 마시고,<br>승인 버튼을 눌러 보세요</h2>
+  <p>관리자로 들어가 보고서를 확인하고 승인해 보세요. 그다음 대표로 들어가 승인된 보고서와 PDF를 확인해요. 약 7분이면 돼요.</p>
+  <div class="roles">
+    <a href="https://report-frontend-henna.vercel.app/demo-login" target="_blank" rel="noopener">조회자 · 대표</a>
+    <a href="https://report-frontend-henna.vercel.app/demo-login" target="_blank" rel="noopener">사용자 · 담당자</a>
+    <a href="https://report-frontend-henna.vercel.app/demo-login" target="_blank" rel="noopener">관리자 · 이사</a>
+    <a href="https://report-frontend-henna.vercel.app/demo-login" target="_blank" rel="noopener">총관리자 · 운영</a>
+  </div>
+  <a class="btn primary" style="width:auto" href="https://report-frontend-henna.vercel.app/demo-login" target="_blank" rel="noopener">역할 고르고 체험하기</a>
+  <p class="micro">가입 없음 · 가상 데이터 · 승인해도 시연 메뉴에서 처음 상태로 되돌릴 수 있어요</p>
+</div></section>
+</main>
+
+<section class="contact" id="contact"><div class="wrap">
+  <div class="grid">
+    <div><b>도입 상담 (가상 연락처)</b><p>담당 김하늘<br>hello@moabeauty.example · 02-0000-0000<br>평일 10:00~18:00</p></div>
+    <div><b>더 자세히 보고 싶다면</b><p>구조, 안전장치, 사용 방법을 담은 자료예요.<br><a href="sales-kit/guide.pdf" target="_blank" rel="noopener" style="color:var(--blue);font-weight:700">고객 안내 자료 + 사용자 가이드 (PDF) →</a></p></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">이 페이지의 회사, 사람, 숫자, 연락처는 모두 과제용 가상 설정이에요. 화면은 가상 데이터로 실제 프로그램을 실행해서 확인했어요. "가정"이라고 적은 숫자는 확정이 아니라 예상이에요.</div></footer>
+
+</body>
+</html>
